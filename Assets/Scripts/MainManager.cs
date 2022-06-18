@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainManager : MonoBehaviour
 {
+    public static MainManager Instance;
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
@@ -15,7 +17,7 @@ public class MainManager : MonoBehaviour
     
     private bool m_Started = false;
     private int m_Points;
-    
+    private string playerName;
     private bool m_GameOver = false;
 
     
@@ -59,6 +61,10 @@ public class MainManager : MonoBehaviour
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
+            else if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                SceneManager.LoadScene(0);
+            }
         }
     }
 
@@ -66,11 +72,39 @@ public class MainManager : MonoBehaviour
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
+        SaveScore();
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+    }
+    
+    [System.Serializable]
+    class SaveData
+    {
+        public string playerName;
+        public int playerScore;
+    }
+    
+    public void SaveScore()
+    {
+        SaveData data = new SaveData();
+        data.playerScore = m_Points;
+
+        string json = JsonUtility.ToJson(data);
+  
+        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+    }
+
+    public void SetPlayerName(string playerName)
+    {
+        this.playerName = playerName;
+    }
+    
+    public string GetPlayerName()
+    {
+        return playerName;
     }
 }
