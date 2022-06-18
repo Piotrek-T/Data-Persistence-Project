@@ -1,5 +1,9 @@
+using System;
+using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -7,29 +11,34 @@ using UnityEditor;
 
 public class MenuUIHandler : MonoBehaviour
 {
-    public GameObject placeholder;
-    // // Start is called before the first frame update
-    // void Start()
-    // {
-    //     
-    // }
-    //
-    // // Update is called once per frame
-    // void Update()
-    // {
-    //     
-    // }
-    
+    // public TextMeshProUGUI inputText;
+    public TMP_InputField userInputField;
+
+    public GameObject messageText;
+
+    public TMP_Text bestScore;
+
+    private string _playerName;
+    private int _maxScore;
+
+    private void Start()
+    {
+        UpdateBestScore();
+    }
+
     public void StartNew()
     {
-        if (MainManager.Instance.GetPlayerName() != null)
+        _playerName = userInputField.text;
+        GameManager.Instance.playerName = _playerName;
+        
+        if (_playerName.Length != 0)
         {
             SceneManager.LoadScene(1);
         }
-        // else
-        // {
-        //     placeholder.GetComponents<>()
-        // }
+        else
+        {
+            StartCoroutine(PlayerMessage());
+        }
     }
     
     public void Exit()
@@ -40,7 +49,20 @@ public class MenuUIHandler : MonoBehaviour
         Application.Quit(); // original code to quit Unity player
 #endif
         
-        MainManager.Instance.SaveScore(); 
+        GameManager.Instance.SaveScore(); 
     }
-    
+
+    IEnumerator PlayerMessage()
+    {
+        messageText.SetActive(true);
+        yield return new WaitForSeconds(1f);
+        messageText.SetActive(false);
+    }
+
+    public void UpdateBestScore()
+    {
+        bestScore.text = "Best score: \t" + GameManager.Instance.bestPlayer + " : " + GameManager.Instance.maxScore;
+        GameManager.Instance.ResetScore();
+    }
+
 }
